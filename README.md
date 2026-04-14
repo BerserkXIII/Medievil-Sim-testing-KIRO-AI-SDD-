@@ -2,6 +2,8 @@
 
 Un RPG sandbox narrativo basado en sistemas, inspirado en Dwarf Fortress. El jugador vive día a día en la Edad Media, donde las necesidades básicas, las relaciones sociales y el azar convergen para generar historias emergentes.
 
+**[English version](README.en.md)**
+
 ## Características
 
 - **Sistema de capas**: atributos innatos, condiciones corporales, derivadas de salud, vitalidad
