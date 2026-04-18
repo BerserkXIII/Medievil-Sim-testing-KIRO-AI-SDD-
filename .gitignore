@@ -40,3 +40,5 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+# Kiro Skills (local workflow, no versionar)
+.kiro/skills/

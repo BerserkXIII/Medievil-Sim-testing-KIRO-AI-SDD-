@@ -224,6 +224,19 @@ class Interfaz:
         # Agrupar módulos por categoría
         agrupados = _agrupar_modulos_por_categoria(disponibles)
         
+        # Crear frame con scroll para botones
+        canvas = tk.Canvas(self.frame_botones, bg=COLOR_FONDO, highlightthickness=0)
+        scrollbar = tk.Scrollbar(self.frame_botones, orient="vertical", command=canvas.yview)
+        frame_scroll = tk.Frame(canvas, bg=COLOR_FONDO)
+        
+        frame_scroll.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=frame_scroll, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
         # Mostrar botones de categoría
         for categoria in CATEGORIAS_MODULOS.keys():
             if categoria not in agrupados:
@@ -234,7 +247,7 @@ class Interfaz:
             
             # Botón de categoría (desplegable)
             btn_categoria = tk.Button(
-                self.frame_botones,
+                frame_scroll,
                 text=f"{info_cat['nombre']} ({len(modulos_cat)})",
                 bg=info_cat["color"], fg=COLOR_CATEGORIA_TX,
                 font=("Georgia", 10, "bold"), relief="flat",
@@ -244,7 +257,7 @@ class Interfaz:
             btn_categoria.pack(fill="x", pady=2)
             
             # Frame para opciones (inicialmente oculto)
-            frame_opciones = tk.Frame(self.frame_botones, bg=COLOR_FONDO)
+            frame_opciones = tk.Frame(frame_scroll, bg=COLOR_FONDO)
             frame_opciones.pack(fill="x", padx=20, pady=0)
             frame_opciones.pack_forget()  # Ocultar inicialmente
             
@@ -253,6 +266,10 @@ class Interfaz:
                 "modulos": modulos_cat,
                 "visible": False,
             }
+        
+        # Empacar canvas y scrollbar
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
     def _toggle_categoria(self, categoria: str, modulos: list):
         """Abre/cierra una categoría. Solo una puede estar abierta a la vez."""
@@ -287,36 +304,50 @@ class Interfaz:
             self.categoria_abierta = categoria
 
     def _agregar_opciones_modulo(self, parent: tk.Frame, modulo: dict):
-        """Agrega los botones de opciones de un módulo a un frame."""
-        # Narrar el módulo con mejor manejo de texto largo
-        frame_texto = tk.Frame(parent, bg=COLOR_FONDO)
-        frame_texto.pack(fill="x", pady=(4, 2))
+        """Agrega los botones de opciones de un módulo a un frame.
+        Sistema robusto que maneja textos largos y múltiples opciones."""
         
-        label_modulo = tk.Label(
-            frame_texto,
-            text=f"• {modulo['texto']}",
-            bg=COLOR_FONDO, fg=COLOR_TEXTO,
-            font=("Georgia", 8), wraplength=350, justify="left",
+        # Frame para el módulo completo
+        frame_modulo = tk.Frame(parent, bg="#1a1a1a", relief="flat")
+        frame_modulo.pack(fill="x", pady=3, padx=0)
+        
+        # Texto narrativo del módulo (en un Text widget para mejor manejo)
+        texto_widget = tk.Text(
+            frame_modulo,
+            height=2, width=60,
+            bg="#0d0d0d", fg=COLOR_TEXTO,
+            font=("Georgia", 9), wrap=tk.WORD,
+            relief="flat", padx=8, pady=6,
+            state="disabled",
         )
-        label_modulo.pack(anchor="w", padx=5)
+        texto_widget.pack(fill="x", padx=5, pady=(4, 2))
+        
+        # Insertar texto narrativo
+        texto_widget.config(state="normal")
+        texto_widget.insert("1.0", f"• {modulo['texto']}")
+        texto_widget.config(state="disabled")
+        
+        # Frame para botones de opciones
+        frame_opciones = tk.Frame(frame_modulo, bg="#1a1a1a")
+        frame_opciones.pack(fill="x", padx=5, pady=(0, 4))
         
         # Botones de opciones
         for i, opcion in enumerate(modulo["opciones"]):
             btn_opcion = tk.Button(
-                parent,
-                text=f"  → {opcion['texto_boton']}",
+                frame_opciones,
+                text=opcion['texto_boton'],
                 bg="#2a2a2a", fg=COLOR_BOTON_TX,
-                font=("Georgia", 8), relief="flat",
-                padx=8, pady=3, cursor="hand2",
-                wraplength=300,
+                font=("Georgia", 9), relief="flat",
+                padx=10, pady=5, cursor="hand2",
+                wraplength=400,
                 justify="left",
                 command=lambda idx=i, m=modulo: self._elegir_opcion(m, idx),
             )
-            btn_opcion.pack(fill="x", pady=1, padx=5)
+            btn_opcion.pack(fill="x", pady=2)
         
         # Separador visual
         sep = tk.Frame(parent, bg="#3a3a3a", height=1)
-        sep.pack(fill="x", pady=4)
+        sep.pack(fill="x", pady=2)
 
     def _elegir_opcion(self, modulo: dict, indice: int):
         """Aplica la opción elegida."""
