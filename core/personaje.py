@@ -22,10 +22,11 @@ def _stat_semialeat(base: int, modificador: int, minimo: int = 1, maximo: int = 
     return max(minimo, min(maximo, base + modificador + ruido))
 
 
-def crear_personaje(nombre: str, sexo: str, edad: int, region: str, linaje: dict) -> dict:
+def crear_personaje(nombre: str, sexo: str, edad: int, region_nombre: str, linaje: dict, contexto: dict = None) -> dict:
     """
     Crea el estado inicial del personaje a partir de los inputs del jugador.
     linaje es un dict con modificadores de stats y tags narrativos.
+    contexto viene de la región (si no se proporciona, usa valores por defecto).
     """
 
     # --- capa -1: atributos (semialeatarios, sesgados por linaje y región) ---
@@ -65,12 +66,13 @@ def crear_personaje(nombre: str, sexo: str, edad: int, region: str, linaje: dict
     }
 
     # --- capa 0b: contexto ambiental (viene del mundo, no del personaje) ---
-    contexto = {
-        "clima_region":           0.5,
-        "disponibilidad_agua":    0.7,
-        "disponibilidad_comida":  0.7,
-        "tension_social":         0.2,
-    }
+    if contexto is None:
+        contexto = {
+            "clima_region":           0.5,
+            "disponibilidad_agua":    0.7,
+            "disponibilidad_comida":  0.7,
+            "tension_social":         0.2,
+        }
 
     # --- capa 1: derivadas (se recalculan cada día) ---
     estado = {
@@ -96,7 +98,7 @@ def crear_personaje(nombre: str, sexo: str, edad: int, region: str, linaje: dict
         "nombre":   nombre,
         "sexo":     sexo,
         "edad":     edad,
-        "region":   region,
+        "region":   region_nombre,
         "linaje":   linaje.get("nombre", "desconocido"),
         "tags":     linaje.get("tags", []),
 
