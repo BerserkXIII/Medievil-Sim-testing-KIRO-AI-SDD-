@@ -26,6 +26,58 @@ COLOR_BOTON_TX = "#d4c5a9"
 COLOR_BARRA_OK = "#4a7c4e"
 COLOR_BARRA_MAL= "#7c4a4a"
 COLOR_TITULO   = "#c9a961"
+COLOR_CATEGORIA = "#2a2416"
+COLOR_CATEGORIA_TX = "#d4af37"
+
+# Categorías de módulos
+CATEGORIAS_MODULOS = {
+    "comer": {"nombre": "🍖 Comer", "color": "#4a3a2a"},
+    "rezar": {"nombre": "✝️ Rezar", "color": "#3a2a4a"},
+    "trabajar": {"nombre": "⚒️ Trabajar", "color": "#3a4a2a"},
+    "descansar": {"nombre": "😴 Descansar", "color": "#2a3a4a"},
+    "viajar": {"nombre": "🗺️ Viajar", "color": "#4a3a1a"},
+    "otro": {"nombre": "❓ Otros", "color": "#3a3a3a"},
+}
+
+def _categorizar_modulo(modulo: dict) -> str:
+    """Categoriza un módulo por su ID. Usa lógica más robusta."""
+    modulo_id = modulo.get("id", "").lower()
+    
+    # Palabras clave por categoría
+    palabras_comer = ["comer", "comida", "desayun", "almuerz", "cen"]
+    palabras_rezar = ["rezar", "fe", "iglesia", "cura", "dios", "oración"]
+    palabras_trabajar = ["trabajar", "trabajo", "oficio", "labor", "ganancia"]
+    palabras_descansar = ["descansar", "dormir", "sueño", "cama", "reposo", "fiebre", "enferm"]
+    palabras_viajar = ["viajar", "viaje", "camino", "ruta", "destino"]
+    
+    for palabra in palabras_comer:
+        if palabra in modulo_id:
+            return "comer"
+    for palabra in palabras_rezar:
+        if palabra in modulo_id:
+            return "rezar"
+    for palabra in palabras_trabajar:
+        if palabra in modulo_id:
+            return "trabajar"
+    for palabra in palabras_descansar:
+        if palabra in modulo_id:
+            return "descansar"
+    for palabra in palabras_viajar:
+        if palabra in modulo_id:
+            return "viajar"
+    
+    return "otro"
+
+def _agrupar_modulos_por_categoria(modulos: list) -> dict:
+    """Agrupa módulos por categoría."""
+    agrupados = {cat: [] for cat in CATEGORIAS_MODULOS.keys()}
+    
+    for modulo in modulos:
+        categoria = _categorizar_modulo(modulo)
+        agrupados[categoria].append(modulo)
+    
+    # Remover categorías vacías
+    return {cat: mods for cat, mods in agrupados.items() if mods}
 
 
 class Interfaz:
@@ -39,6 +91,10 @@ class Interfaz:
         self.viaje_destino = None
         self.viaje_preparacion = None
         self.viaje_resultado = None
+        
+        # Estado de categorías desplegables
+        self.categoria_abierta = None
+        self.frames_categorias = {}
 
         self.root.title("Vida Medieval")
         self.root.configure(bg=COLOR_FONDO)
@@ -139,7 +195,7 @@ class Interfaz:
         self._mostrar_franja()
 
     def _mostrar_franja(self):
-        """Muestra los módulos disponibles para la franja actual."""
+        """Muestra los módulos disponibles agrupados por categoría."""
         if self.franja_actual >= len(FRANJAS):
             self._fin_dia()
             return
@@ -153,6 +209,8 @@ class Interfaz:
             disponibles.extend(modulos_viaje)
 
         self._limpiar_botones()
+        self.categoria_abierta = None
+        self.frames_categorias = {}
 
         if not disponibles:
             self._narrar(f"[{franja.upper()}] Nada especial ocurre.")
@@ -163,22 +221,102 @@ class Interfaz:
         # Mostrar encabezado de franja
         self._narrar(f"[{franja.upper()}] ¿Qué haces?\n")
         
-        # Mostrar TODOS los módulos con sus opciones como botones
-        for modulo in disponibles:
-            # Narrar el texto del módulo (la situación)
-            self._narrar(f"• {modulo['texto']}")
+        # Agrupar módulos por categoría
+        agrupados = _agrupar_modulos_por_categoria(disponibles)
+        
+        # Mostrar botones de categoría
+        for categoria in CATEGORIAS_MODULOS.keys():
+            if categoria not in agrupados:
+                continue
             
-            # Crear botones para cada opción del módulo
-            for i, opcion in enumerate(modulo["opciones"]):
-                btn = tk.Button(
-                    self.frame_botones,
-                    text=f"  → {opcion['texto_boton']}",
-                    bg=COLOR_BOTON, fg=COLOR_BOTON_TX,
-                    font=("Georgia", 9), relief="flat",
-                    padx=10, pady=4, cursor="hand2",
-                    command=lambda idx=i, m=modulo: self._elegir_opcion(m, idx),
-                )
-                btn.pack(fill="x", pady=1)
+            modulos_cat = agrupados[categoria]
+            info_cat = CATEGORIAS_MODULOS[categoria]
+            
+            # Botón de categoría (desplegable)
+            btn_categoria = tk.Button(
+                self.frame_botones,
+                text=f"{info_cat['nombre']} ({len(modulos_cat)})",
+                bg=info_cat["color"], fg=COLOR_CATEGORIA_TX,
+                font=("Georgia", 10, "bold"), relief="flat",
+                padx=10, pady=6, cursor="hand2",
+                command=lambda cat=categoria, mods=modulos_cat: self._toggle_categoria(cat, mods),
+            )
+            btn_categoria.pack(fill="x", pady=2)
+            
+            # Frame para opciones (inicialmente oculto)
+            frame_opciones = tk.Frame(self.frame_botones, bg=COLOR_FONDO)
+            frame_opciones.pack(fill="x", padx=20, pady=0)
+            frame_opciones.pack_forget()  # Ocultar inicialmente
+            
+            self.frames_categorias[categoria] = {
+                "frame": frame_opciones,
+                "modulos": modulos_cat,
+                "visible": False,
+            }
+
+    def _toggle_categoria(self, categoria: str, modulos: list):
+        """Abre/cierra una categoría. Solo una puede estar abierta a la vez."""
+        # Cerrar categoría abierta anterior
+        if self.categoria_abierta and self.categoria_abierta != categoria:
+            frame_anterior = self.frames_categorias[self.categoria_abierta]["frame"]
+            frame_anterior.pack_forget()
+            self.frames_categorias[self.categoria_abierta]["visible"] = False
+        
+        # Toggle categoría actual
+        frame_actual = self.frames_categorias[categoria]["frame"]
+        
+        if self.frames_categorias[categoria]["visible"]:
+            # Cerrar
+            frame_actual.pack_forget()
+            self.frames_categorias[categoria]["visible"] = False
+            self.categoria_abierta = None
+        else:
+            # Abrir
+            frame_actual.pack_forget()  # Remover primero
+            frame_actual.pack(fill="x", padx=20, pady=0)
+            
+            # Limpiar frame anterior
+            for widget in frame_actual.winfo_children():
+                widget.destroy()
+            
+            # Agregar botones de opciones
+            for modulo in modulos:
+                self._agregar_opciones_modulo(frame_actual, modulo)
+            
+            self.frames_categorias[categoria]["visible"] = True
+            self.categoria_abierta = categoria
+
+    def _agregar_opciones_modulo(self, parent: tk.Frame, modulo: dict):
+        """Agrega los botones de opciones de un módulo a un frame."""
+        # Narrar el módulo con mejor manejo de texto largo
+        frame_texto = tk.Frame(parent, bg=COLOR_FONDO)
+        frame_texto.pack(fill="x", pady=(4, 2))
+        
+        label_modulo = tk.Label(
+            frame_texto,
+            text=f"• {modulo['texto']}",
+            bg=COLOR_FONDO, fg=COLOR_TEXTO,
+            font=("Georgia", 8), wraplength=350, justify="left",
+        )
+        label_modulo.pack(anchor="w", padx=5)
+        
+        # Botones de opciones
+        for i, opcion in enumerate(modulo["opciones"]):
+            btn_opcion = tk.Button(
+                parent,
+                text=f"  → {opcion['texto_boton']}",
+                bg="#2a2a2a", fg=COLOR_BOTON_TX,
+                font=("Georgia", 8), relief="flat",
+                padx=8, pady=3, cursor="hand2",
+                wraplength=300,
+                justify="left",
+                command=lambda idx=i, m=modulo: self._elegir_opcion(m, idx),
+            )
+            btn_opcion.pack(fill="x", pady=1, padx=5)
+        
+        # Separador visual
+        sep = tk.Frame(parent, bg="#3a3a3a", height=1)
+        sep.pack(fill="x", pady=4)
 
     def _elegir_opcion(self, modulo: dict, indice: int):
         """Aplica la opción elegida."""
@@ -414,7 +552,7 @@ class Interfaz:
         self._actualizar_header()
         self._actualizar_barras()
 
-        self.en_viaje = False
+        self.en_preparacion_viaje = False
         self.franja_actual += 1
         self.root.after(500, self._mostrar_franja)
 
