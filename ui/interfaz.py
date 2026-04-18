@@ -114,6 +114,12 @@ class Interfaz:
 
         franja = FRANJAS[self.franja_actual]
         disponibles = modulos_disponibles(self.personaje, franja, MODULOS)
+        
+        # Añadir módulos de viaje en mediodía
+        if franja == "mediodia":
+            from data.encuentros_viaje_data import generar_modulos_viaje
+            modulos_viaje = generar_modulos_viaje(self.personaje["region"])
+            disponibles.extend(modulos_viaje)
 
         self._limpiar_botones()
 

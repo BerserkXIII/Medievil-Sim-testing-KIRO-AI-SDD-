@@ -291,4 +291,287 @@ MODULOS = [
             },
         ],
     },
+
+    # =========================================================================
+    # MÓDULOS ADICIONALES: Comercio, religión, conflicto, etc
+    # =========================================================================
+
+    {
+        "id": "mercader_ambulante",
+        "franja": "mediodia",
+        "condiciones": {
+            "region": ["puerto_costero", "ciudad_amurallada", "aldea_agricola"],
+        },
+        "texto": "Un mercader ambulante te ofrece sus wares.",
+        "opciones": [
+            {
+                "texto_boton": "Comprar algo útil",
+                "transformaciones": {"riqueza": -0.08, "nutricion": +0.1},
+                "texto_resultado": "Compras comida y suministros. Buen negocio.",
+            },
+            {
+                "texto_boton": "Ignorar",
+                "transformaciones": {},
+                "texto_resultado": "Continúas tu camino.",
+            },
+        ],
+    },
+
+    {
+        "id": "sacerdote_confesion",
+        "franja": "tarde",
+        "condiciones": {
+            "region": ["aldea_agricola", "ciudad_amurallada"],
+            "fe": (0.3, 1.0),
+        },
+        "texto": "El sacerdote te invita a confesarte.",
+        "opciones": [
+            {
+                "texto_boton": "Confesarse",
+                "transformaciones": {"fe": +0.1, "presion_social": -0.1},
+                "texto_resultado": "Te sientes en paz. La comunidad te ve bien.",
+            },
+            {
+                "texto_boton": "Declinar",
+                "transformaciones": {"presion_social": +0.05},
+                "texto_resultado": "El sacerdote frunce el ceño.",
+            },
+        ],
+    },
+
+    {
+        "id": "taberna_noticias",
+        "franja": "tarde",
+        "condiciones": {
+            "region": ["puerto_costero", "ciudad_amurallada"],
+            "riqueza": (0.1, 1.0),
+        },
+        "texto": "En la taberna, los viajeros comparten historias.",
+        "opciones": [
+            {
+                "texto_boton": "Beber y escuchar",
+                "transformaciones": {"riqueza": -0.05, "reputacion": +0.05},
+                "texto_resultado": "Oyes historias interesantes. Te haces amigos.",
+            },
+            {
+                "texto_boton": "Jugar a los dados",
+                "transformaciones": {"riqueza": +0.1},
+                "texto_resultado": "¡Tienes suerte! Ganas dinero.",
+            },
+        ],
+    },
+
+    {
+        "id": "trabajo_temporal",
+        "franja": "mediodia",
+        "condiciones": {
+            "condicion": (0.3, 1.0),
+            "region": ["puerto_costero", "ciudad_amurallada", "aldea_agricola"],
+        },
+        "texto": "Hay trabajo temporal disponible.",
+        "opciones": [
+            {
+                "texto_boton": "Trabajar duro",
+                "transformaciones": {"riqueza": +0.12, "descanso": -0.2},
+                "texto_resultado": "Trabajas todo el día. Ganas buen dinero.",
+            },
+            {
+                "texto_boton": "Trabajar poco",
+                "transformaciones": {"riqueza": +0.05, "descanso": -0.08},
+                "texto_resultado": "Haces algo de trabajo. Poco dinero.",
+            },
+        ],
+    },
+
+    {
+        "id": "cazador_bosque",
+        "franja": "mediodia",
+        "condiciones": {
+            "region": ["bosque_denso", "montaña_rocosa"],
+        },
+        "texto": "Un cazador te invita a cazar.",
+        "opciones": [
+            {
+                "texto_boton": "Cazar",
+                "transformaciones": {"nutricion": +0.2, "heridas": +0.08},
+                "texto_resultado": "Cazas un animal. Consigues comida, pero te hieres.",
+            },
+            {
+                "texto_boton": "Declinar",
+                "transformaciones": {},
+                "texto_resultado": "Prefieres no arriesgarte.",
+            },
+        ],
+    },
+
+    {
+        "id": "ermitano_sabiduria",
+        "franja": "tarde",
+        "condiciones": {
+            "region": ["montaña_rocosa", "bosque_denso"],
+        },
+        "texto": "Un ermitaño te ofrece enseñanzas.",
+        "opciones": [
+            {
+                "texto_boton": "Aprender",
+                "transformaciones": {"presion_social": -0.1, "fe": +0.05},
+                "texto_resultado": "Aprendes cosas sobre la vida. Te sientes más sabio.",
+            },
+            {
+                "texto_boton": "Ignorar",
+                "transformaciones": {},
+                "texto_resultado": "Continúas tu camino.",
+            },
+        ],
+    },
+
+    {
+        "id": "enfermedad_leve",
+        "franja": "mañana",
+        "condiciones": {
+            "salud_fisica": (0.2, 0.5),
+        },
+        "texto": "Te despiertas con fiebre leve.",
+        "opciones": [
+            {
+                "texto_boton": "Descansar",
+                "transformaciones": {"descanso": +0.2, "nutricion": -0.05},
+                "texto_resultado": "Descansas. La fiebre baja.",
+            },
+            {
+                "texto_boton": "Ignorar y continuar",
+                "transformaciones": {"heridas": +0.1},
+                "texto_resultado": "Ignoras la fiebre. Empeora.",
+            },
+        ],
+    },
+
+    {
+        "id": "nobleza_encuentro",
+        "franja": "mediodia",
+        "condiciones": {
+            "region": ["ciudad_amurallada"],
+            "reputacion": (0.5, 1.0),
+        },
+        "texto": "Un noble te reconoce en la calle.",
+        "opciones": [
+            {
+                "texto_boton": "Saludar respetuosamente",
+                "transformaciones": {"reputacion": +0.1, "lealtad": +0.05},
+                "texto_resultado": "El noble te saluda. Tu reputación sube.",
+            },
+            {
+                "texto_boton": "Ignorar",
+                "transformaciones": {"reputacion": -0.1},
+                "texto_resultado": "El noble se ofende.",
+            },
+        ],
+    },
+
+    {
+        "id": "pordiosero_caridad",
+        "franja": "tarde",
+        "condiciones": {
+            "riqueza": (0.3, 1.0),
+        },
+        "texto": "Un pordiosero te pide limosna.",
+        "opciones": [
+            {
+                "texto_boton": "Dar dinero",
+                "transformaciones": {"riqueza": -0.05, "reputacion": +0.08},
+                "texto_resultado": "Das dinero. Te sientes bien. La gente lo nota.",
+            },
+            {
+                "texto_boton": "Rechazar",
+                "transformaciones": {"reputacion": -0.05},
+                "texto_resultado": "Rechazas. El pordiosero te maldice.",
+            },
+        ],
+    },
+
+    {
+        "id": "guardia_control",
+        "franja": "mediodia",
+        "condiciones": {
+            "region": ["ciudad_amurallada", "puerto_costero"],
+            "flags_ausentes": ["buscado"],
+        },
+        "texto": "Un guardia te detiene para un control.",
+        "opciones": [
+            {
+                "texto_boton": "Cooperar",
+                "transformaciones": {"presion_social": -0.05},
+                "texto_resultado": "Cooperas. El guardia te deja pasar.",
+            },
+            {
+                "texto_boton": "Ser desafiante",
+                "transformaciones": {"peligro_percibido": +0.2, "reputacion": -0.1},
+                "texto_resultado": "El guardia se molesta. Mejor no insistir.",
+            },
+        ],
+    },
+
+    {
+        "id": "viajero_compania",
+        "franja": "tarde",
+        "condiciones": {
+            "presion_social": (0.0, 0.5),
+        },
+        "texto": "Un viajero solitario busca compañía.",
+        "opciones": [
+            {
+                "texto_boton": "Acompañarlo",
+                "transformaciones": {"presion_social": -0.1, "reputacion": +0.05},
+                "texto_resultado": "Compartes historias. El viaje es menos tedioso.",
+            },
+            {
+                "texto_boton": "Declinar",
+                "transformaciones": {},
+                "texto_resultado": "Prefieres estar solo.",
+            },
+        ],
+    },
+
+    {
+        "id": "cosecha_ayuda",
+        "franja": "mediodia",
+        "condiciones": {
+            "region": ["aldea_agricola"],
+            "condicion": (0.5, 1.0),
+        },
+        "texto": "Los aldeanos necesitan ayuda con la cosecha.",
+        "opciones": [
+            {
+                "texto_boton": "Ayudar",
+                "transformaciones": {"reputacion": +0.15, "descanso": -0.15},
+                "texto_resultado": "Ayudas con la cosecha. Te ganas su gratitud.",
+            },
+            {
+                "texto_boton": "Declinar",
+                "transformaciones": {"reputacion": -0.05},
+                "texto_resultado": "Los aldeanos se decepcionan.",
+            },
+        ],
+    },
+
+    {
+        "id": "tormenta_refugio",
+        "franja": "tarde",
+        "condiciones": {
+            "clima_region": (0.0, 0.3),
+        },
+        "texto": "Una tormenta se aproxima.",
+        "opciones": [
+            {
+                "texto_boton": "Buscar refugio",
+                "transformaciones": {"descanso": +0.1, "temperatura_corporal": +0.1},
+                "texto_resultado": "Encuentras refugio. La tormenta pasa.",
+            },
+            {
+                "texto_boton": "Continuar",
+                "transformaciones": {"heridas": +0.1, "temperatura_corporal": -0.2},
+                "texto_resultado": "La tormenta te golpea. Resultas mojado y herido.",
+            },
+        ],
+    },
 ]
