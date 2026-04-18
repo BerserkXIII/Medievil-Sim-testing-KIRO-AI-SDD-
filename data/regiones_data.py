@@ -14,6 +14,15 @@ REGIONES = {
         "geografia": 0.8,  # good harbors, fertile land nearby
         "clima": 0.6,      # mediterranean: warm, pleasant
         
+        # Travel distances (in days)
+        "distancias": {
+            "aldea_agricola": 0.5,
+            "montaña_rocosa": 2.0,
+            "bosque_denso": 1.5,
+            "ciudad_amurallada": 1.0,
+            "desierto_arido": 3.0,
+        },
+        
         # Layer 0: conditions
         "condiciones": {
             "poblacion": 0.8,        # very populated
@@ -48,6 +57,15 @@ REGIONES = {
         "geografia": 0.7,  # fertile soil
         "clima": 0.6,
         
+        # Travel distances
+        "distancias": {
+            "puerto_costero": 0.5,
+            "montaña_rocosa": 1.5,
+            "bosque_denso": 1.0,
+            "ciudad_amurallada": 0.8,
+            "desierto_arido": 2.5,
+        },
+        
         "condiciones": {
             "poblacion": 0.3,        # small
             "clima": 0.6,
@@ -76,6 +94,15 @@ REGIONES = {
         
         "geografia": 0.2,  # harsh, difficult
         "clima": 0.3,      # cold
+        
+        # Travel distances
+        "distancias": {
+            "puerto_costero": 2.0,
+            "aldea_agricola": 1.5,
+            "bosque_denso": 1.0,
+            "ciudad_amurallada": 1.2,
+            "desierto_arido": 2.5,
+        },
         
         "condiciones": {
             "poblacion": 0.1,        # very sparse
@@ -106,6 +133,15 @@ REGIONES = {
         "geografia": 0.4,  # moderate resources
         "clima": 0.5,      # temperate
         
+        # Travel distances
+        "distancias": {
+            "puerto_costero": 1.5,
+            "aldea_agricola": 1.0,
+            "montaña_rocosa": 1.0,
+            "ciudad_amurallada": 0.8,
+            "desierto_arido": 2.0,
+        },
+        
         "condiciones": {
             "poblacion": 0.15,       # very sparse
             "clima": 0.5,
@@ -135,6 +171,15 @@ REGIONES = {
         "geografia": 0.6,  # defensible position
         "clima": 0.5,
         
+        # Travel distances
+        "distancias": {
+            "puerto_costero": 1.0,
+            "aldea_agricola": 0.8,
+            "montaña_rocosa": 1.2,
+            "bosque_denso": 0.8,
+            "desierto_arido": 2.0,
+        },
+        
         "condiciones": {
             "poblacion": 0.7,        # large
             "clima": 0.5,
@@ -163,6 +208,15 @@ REGIONES = {
         
         "geografia": 0.1,  # very harsh
         "clima": 0.9,      # very hot
+        
+        # Travel distances
+        "distancias": {
+            "puerto_costero": 3.0,
+            "aldea_agricola": 2.5,
+            "montaña_rocosa": 2.5,
+            "bosque_denso": 2.0,
+            "ciudad_amurallada": 2.0,
+        },
         
         "condiciones": {
             "poblacion": 0.05,       # extremely sparse
