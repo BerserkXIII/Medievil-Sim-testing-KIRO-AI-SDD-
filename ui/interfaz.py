@@ -4,12 +4,17 @@ Game UI: main game loop with travel, encounters, and events.
 
 import tkinter as tk
 from tkinter import scrolledtext
-from core.motor import avanzar_dia, esta_vivo, actualizar_derivadas_region
+from core.motor import avanzar_dia, esta_vivo
 from core.modulos import modulos_disponibles, aplicar_opcion
-from core.viaje import realizar_viaje, completar_viaje_tras_encuentro, preparar_viaje
-from core.mundo import obtener_contexto_personaje
+from core.viaje import (
+    realizar_viaje,
+    completar_viaje_tras_encuentro,
+    obtener_destinos_disponibles,
+    clasificar_viaje,
+    generar_advertencias_viaje,
+)
+from core.mundo import obtener_contexto_personaje, actualizar_derivadas_region
 from data.modulos_data import MODULOS
-from data.encuentros_viaje_data import generar_modulos_viaje
 from data.regiones_data import obtener_region
 
 FRANJAS = ["mañana", "mediodia", "tarde", "noche"]
@@ -28,8 +33,11 @@ class Interfaz:
         self.root = root
         self.personaje = personaje
         self.franja_actual = 0
-        self.en_viaje = False
+        
+        # Estado de viaje
+        self.en_preparacion_viaje = False
         self.viaje_destino = None
+        self.viaje_preparacion = None
         self.viaje_resultado = None
 
         self.root.title("Vida Medieval")
@@ -141,7 +149,7 @@ class Interfaz:
 
         # Añadir módulos de viaje en mediodía
         if franja == "mediodia":
-            modulos_viaje = generar_modulos_viaje(self.personaje["region"])
+            modulos_viaje = self._generar_modulos_viaje()
             disponibles.extend(modulos_viaje)
 
         self._limpiar_botones()
@@ -152,20 +160,25 @@ class Interfaz:
             self.root.after(800, self._mostrar_franja)
             return
 
-        # Mostrar primer módulo
-        modulo = disponibles[0]
-        self._narrar(f"[{franja.upper()}] {modulo['texto']}")
-
-        for i, opcion in enumerate(modulo["opciones"]):
-            btn = tk.Button(
-                self.frame_botones,
-                text=opcion["texto_boton"],
-                bg=COLOR_BOTON, fg=COLOR_BOTON_TX,
-                font=("Georgia", 10), relief="flat",
-                padx=10, pady=6, cursor="hand2",
-                command=lambda idx=i, m=modulo: self._elegir_opcion(m, idx),
-            )
-            btn.pack(fill="x", pady=2)
+        # Mostrar encabezado de franja
+        self._narrar(f"[{franja.upper()}] ¿Qué haces?\n")
+        
+        # Mostrar TODOS los módulos con sus opciones como botones
+        for modulo in disponibles:
+            # Narrar el texto del módulo (la situación)
+            self._narrar(f"• {modulo['texto']}")
+            
+            # Crear botones para cada opción del módulo
+            for i, opcion in enumerate(modulo["opciones"]):
+                btn = tk.Button(
+                    self.frame_botones,
+                    text=f"  → {opcion['texto_boton']}",
+                    bg=COLOR_BOTON, fg=COLOR_BOTON_TX,
+                    font=("Georgia", 9), relief="flat",
+                    padx=10, pady=4, cursor="hand2",
+                    command=lambda idx=i, m=modulo: self._elegir_opcion(m, idx),
+                )
+                btn.pack(fill="x", pady=1)
 
     def _elegir_opcion(self, modulo: dict, indice: int):
         """Aplica la opción elegida."""
@@ -175,7 +188,7 @@ class Interfaz:
         # Detectar si es un viaje
         if "_viaje" in transformaciones:
             destino = transformaciones["_viaje"]
-            self._iniciar_viaje(destino)
+            self._preparar_viaje(destino)
             return
 
         # Aplicar transformación normal
@@ -185,26 +198,175 @@ class Interfaz:
         self.franja_actual += 1
         self.root.after(500, self._mostrar_franja)
 
-    def _iniciar_viaje(self, destino: str):
-        """Inicia un viaje a destino."""
-        self._narrar(f"Te diriges hacia {obtener_region(destino)['nombre']}...")
+    def _generar_modulos_viaje(self) -> list:
+        """Genera módulos de viaje para los destinos disponibles."""
+        try:
+            destinos = obtener_destinos_disponibles(self.personaje["region"])
+        except ValueError:
+            return []
+        
+        modulos = []
+        for destino, distancia in destinos.items():
+            tipo_viaje = clasificar_viaje(distancia)
+            
+            # Descripción según distancia
+            if tipo_viaje == "corto":
+                desc_distancia = "muy cerca"
+            elif tipo_viaje == "medio":
+                desc_distancia = "a media jornada"
+            else:
+                desc_distancia = "varios días de viaje"
+            
+            region_destino = obtener_region(destino)
+            modulo = {
+                "id": f"viajar_a_{destino}",
+                "franja": "mediodia",
+                "condiciones": {},
+                "texto": f"Podrías viajar a {region_destino['nombre']} ({desc_distancia}).",
+                "opciones": [
+                    {
+                        "texto_boton": f"Viajar a {region_destino['nombre']}",
+                        "transformaciones": {"_viaje": destino},
+                        "texto_resultado": f"Te diriges hacia {region_destino['nombre']}...",
+                    }
+                ],
+            }
+            modulos.append(modulo)
+        
+        return modulos
+
+    def _preparar_viaje(self, destino: str):
+        """Muestra opciones de preparación para el viaje."""
+        region_destino = obtener_region(destino)
+        tipo_viaje = clasificar_viaje(
+            obtener_destinos_disponibles(self.personaje["region"])[destino]
+        )
+        
+        self._limpiar_botones()
+        self.en_preparacion_viaje = True
+        self.viaje_destino = destino
+        
+        # Mostrar advertencias
+        advertencias = generar_advertencias_viaje(region_destino)
+        if advertencias:
+            self._narrar("\n⚠️ ADVERTENCIAS DEL VIAJE:")
+            for adv in advertencias:
+                self._narrar(f"  • {adv}")
+        
+        # Mostrar opciones de preparación según tipo de viaje
+        if tipo_viaje == "corto":
+            self._narrar("\nEs un viaje corto. Puedes partir sin preparación.")
+            self._mostrar_opciones_preparacion_corto(destino)
+        else:
+            self._narrar("\n¿Cómo quieres prepararte para este viaje?")
+            self._mostrar_opciones_preparacion_largo(destino)
+
+    def _mostrar_opciones_preparacion_corto(self, destino: str):
+        """Opciones para viaje corto (sin preparación necesaria)."""
+        btn_partir = tk.Button(
+            self.frame_botones,
+            text="Partir ahora",
+            bg=COLOR_BOTON, fg=COLOR_BOTON_TX,
+            font=("Georgia", 10), relief="flat",
+            padx=10, pady=6, cursor="hand2",
+            command=lambda: self._iniciar_viaje(destino, preparacion=None),
+        )
+        btn_partir.pack(fill="x", pady=2)
+        
+        btn_cancelar = tk.Button(
+            self.frame_botones,
+            text="Cancelar",
+            bg="#2a2a2a", fg=COLOR_BOTON_TX,
+            font=("Georgia", 10), relief="flat",
+            padx=10, pady=6, cursor="hand2",
+            command=self._cancelar_preparacion_viaje,
+        )
+        btn_cancelar.pack(fill="x", pady=2)
+
+    def _mostrar_opciones_preparacion_largo(self, destino: str):
+        """Opciones para viaje largo (con preparación)."""
+        btn_arma = tk.Button(
+            self.frame_botones,
+            text="Llevar arma (reduce encuentros)",
+            bg=COLOR_BOTON, fg=COLOR_BOTON_TX,
+            font=("Georgia", 10), relief="flat",
+            padx=10, pady=6, cursor="hand2",
+            command=lambda: self._iniciar_viaje(destino, preparacion="arma"),
+        )
+        btn_arma.pack(fill="x", pady=2)
+        
+        btn_dinero = tk.Button(
+            self.frame_botones,
+            text="Llevar dinero (para sobornar)",
+            bg=COLOR_BOTON, fg=COLOR_BOTON_TX,
+            font=("Georgia", 10), relief="flat",
+            padx=10, pady=6, cursor="hand2",
+            command=lambda: self._iniciar_viaje(destino, preparacion="dinero"),
+        )
+        btn_dinero.pack(fill="x", pady=2)
+        
+        btn_sin_prep = tk.Button(
+            self.frame_botones,
+            text="Partir sin preparación",
+            bg="#2a2a2a", fg=COLOR_BOTON_TX,
+            font=("Georgia", 10), relief="flat",
+            padx=10, pady=6, cursor="hand2",
+            command=lambda: self._iniciar_viaje(destino, preparacion=None),
+        )
+        btn_sin_prep.pack(fill="x", pady=2)
+        
+        btn_cancelar = tk.Button(
+            self.frame_botones,
+            text="Cancelar",
+            bg="#1a1a1a", fg=COLOR_BOTON_TX,
+            font=("Georgia", 10), relief="flat",
+            padx=10, pady=6, cursor="hand2",
+            command=self._cancelar_preparacion_viaje,
+        )
+        btn_cancelar.pack(fill="x", pady=2)
+
+    def _cancelar_preparacion_viaje(self):
+        """Cancela la preparación y vuelve a mostrar la franja."""
+        self.en_preparacion_viaje = False
+        self.viaje_destino = None
+        self.viaje_preparacion = None
+        self._narrar("Decides quedarte por ahora.")
+        self.franja_actual += 1
+        self.root.after(500, self._mostrar_franja)
+
+    def _iniciar_viaje(self, destino: str, preparacion: str = None):
+        """Inicia el viaje con la preparación elegida."""
+        self.viaje_preparacion = preparacion
+        region_destino = obtener_region(destino)
+        
+        prep_texto = ""
+        if preparacion == "arma":
+            prep_texto = " (armado)"
+        elif preparacion == "dinero":
+            prep_texto = " (con dinero)"
+        
+        self._narrar(f"\nTe diriges hacia {region_destino['nombre']}{prep_texto}...")
         self.root.after(1000, lambda: self._realizar_viaje(destino))
 
     def _realizar_viaje(self, destino: str):
         """Realiza el viaje y maneja encuentros."""
-        resultado = realizar_viaje(self.personaje, destino, preparacion=None)
+        resultado = realizar_viaje(
+            self.personaje,
+            destino,
+            preparacion=self.viaje_preparacion
+        )
 
         if resultado["estado"] == "encuentro":
             # Hay encuentro durante el viaje
-            self.en_viaje = True
-            self.viaje_destino = destino
             self.viaje_resultado = resultado
             self._mostrar_encuentro_viaje(resultado["encuentro"])
         else:
             # Viaje completado sin encuentros
             self.personaje = resultado["personaje"]
             self._narrar(resultado["texto"])
+            self._actualizar_header()
             self._actualizar_barras()
+            self.en_preparacion_viaje = False
             self.franja_actual += 1
             self.root.after(500, self._mostrar_franja)
 
@@ -257,10 +419,10 @@ class Interfaz:
         self.root.after(500, self._mostrar_franja)
 
     def _fin_dia(self):
-        """Cierra el día."""
+        """Cierra el día y avanza al siguiente."""
         self.personaje = avanzar_dia(self.personaje)
         
-        # Actualizar contexto de la región
+        # Actualizar región actual
         region = obtener_region(self.personaje["region"])
         region = actualizar_derivadas_region(region)
         self.personaje["contexto"] = obtener_contexto_personaje(region)

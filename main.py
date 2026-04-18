@@ -54,9 +54,9 @@ def pantalla_creacion(root: tk.Tk):
                relief="flat", buttonbackground="#2a2a2a").grid(row=3, column=1, sticky="w", padx=(10, 0))
 
     label("Región:", 4)
-    region_var = tk.StringVar(value="aldea")
+    region_var = tk.StringVar(value="puerto_costero")
     ttk.Combobox(frame, textvariable=region_var,
-                 values=["aldea", "ciudad", "frontera", "bosque", "camino"],
+                 values=["puerto_costero", "aldea_agricola", "montaña_rocosa", "bosque_denso", "ciudad_amurallada", "desierto_arido"],
                  state="readonly", font=("Georgia", 10)).grid(row=4, column=1, sticky="ew", padx=(10, 0))
 
     label("Linaje:", 5)
@@ -74,7 +74,7 @@ def pantalla_creacion(root: tk.Tk):
             nombre=nombre,
             sexo=sexo_var.get(),
             edad=edad_var.get(),
-            region=region_var.get(),
+            region_nombre=region_var.get(),
             linaje=linaje,
         )
         for widget in root.winfo_children():

@@ -10,6 +10,8 @@ A narrative sandbox RPG based on emergent systems, inspired by Dwarf Fortress. T
 - **Emergent narrative**: reusable modules that activate based on character state
 - **Functional fractal**: the same types of events repeat at different scales and contexts
 - **Consequential decisions**: every action has consequences that shape the future
+- **Travel between regions**: dynamic movement with encounters and preparation
+- **Living world**: regions with properties that change based on events
 
 ## Installation
 
@@ -30,16 +32,22 @@ medieval_life/
 ├── core/              # Game engine
 │   ├── personaje.py   # Character data structure
 │   ├── motor.py       # Derivative calculation and day advancement
-│   └── modulos.py     # Module evaluation and application
+│   ├── modulos.py     # Module evaluation and application
+│   ├── mundo.py       # Region system and world
+│   └── viaje.py       # Travel system and encounters
 ├── data/              # Game data
-│   ├── linajes_data.py    # Available lineages
-│   └── modulos_data.py    # Narrative modules
+│   ├── linajes_data.py        # Available lineages
+│   ├── modulos_data.py        # Narrative modules
+│   ├── regiones_data.py       # World regions
+│   └── encuentros_viaje_data.py # Travel encounters
 ├── ui/                # User interface
 │   └── interfaz.py    # UI with tkinter
 ├── tests/             # Automated tests
 │   ├── test_motor.py
 │   ├── test_modulos.py
-│   └── test_personaje.py
+│   ├── test_personaje.py
+│   ├── test_mundo.py
+│   └── test_viaje.py
 ├── main.py            # Entry point
 └── README.en.md       # This file
 ```
@@ -58,99 +66,76 @@ For coverage report:
 pytest tests/ --cov=core --cov-report=html
 ```
 
-## Development Workflow
+## How to Play
 
-### Main branches
+1. **Create character**: choose name, sex, age, region, and lineage
+2. **Each day has 4 time periods**: morning, midday, afternoon, night
+3. **Each period**: choose an action from available options
+4. **Actions have consequences**: they affect your state and the world
+5. **Travel between regions**: encounter events on the road
+6. **Survive**: keep your basic needs covered
 
-- **`main`**: stable code, ready to play. Only changes that pass all tests.
-- **`develop`**: integration branch. New features are merged here.
+## Character State Layers
 
-### Feature branches
-
-Create a new branch for each feature:
-
-```bash
-git checkout develop
-git checkout -b feature/your-feature-name
-# ... make changes ...
-git add .
-git commit -m "feat: description of changes"
-git push origin feature/your-feature-name
-# Create a Pull Request on GitHub
-```
-
-### Commit message conventions
-
-- `feat:` new feature
-- `fix:` bug fix
-- `test:` test additions or modifications
-- `refactor:` code refactoring
-- `docs:` documentation changes
-- `chore:` maintenance tasks
-
-Example:
-```bash
-git commit -m "feat: add 5 new commerce modules"
-git commit -m "test: add boundary tests for vitalidad calculation"
-git commit -m "fix: constitucion modifier was too strong"
-```
-
-## System Design
-
-### Character State Layers
-
-The character is represented as a multi-layered state machine:
-
-**Layer -1: Attributes** (innate, semi-random based on lineage)
+### Layer -1: Attributes (innate)
 - Constitution, Resistance, Intelligence, Perception, Will, Charisma, Faith Innate, Fortune
 
-**Layer 0: Conditions** (environmental and bodily)
+### Layer 0: Conditions (bodily)
 - Nutrition, Hydration, Rest, Wounds, Hygiene, Body Temperature, Social Pressure, Diseases
 
-**Layer 0b: Environmental Context** (comes from the world)
-- Region Climate, Water Availability, Food Availability, Social Tension
-
-**Layer 1: Derived** (recalculated daily)
+### Layer 1: Derived (calculated)
 - Physical Health, Mental Health, Condition
 
-**Layer 2: Existential**
-- Vitality (determines if character is alive)
+### Layer 2: Existential
+- Vitality (determines if you're alive)
 
-**Layer 3: Circumstantial** (affect available modules)
+### Layer 3: Circumstantial (social)
 - Wealth, Reputation, Faith, Loyalty
 
-### Narrative Modules
+## Region System
 
-Each module is a narrative event with:
-- **Activation conditions**: what must be true for the module to appear
-- **Options**: 2-3 player choices
-- **Transformations**: how the character state changes based on choice
-- **Text**: narrative description (with variable interpolation)
+Each region has:
+- **Base properties**: geography, climate
+- **Conditions**: population, stability, religion, government, epidemic, conflict
+- **Derived**: abundance, security, social cohesion
+- **Emergent flags**: famine, pagan cults, bandits, epidemic, civil war
 
-Modules are organized by time of day: morning, midday, afternoon, night.
+Regions affect:
+- Which modules are available
+- What encounters can occur
+- How the character's context changes
 
-### Fractal Structure
+## Travel System
 
-The system is fractal in:
-- **Repetition**: the same module types appear at different scales
-- **Transformation rules**: consistent rules apply recursively
-- **Conflict escalation**: micro conflicts can escalate to macro events
+- **Distance**: each region has distance to others (0.5 to 3.0 days)
+- **Classification**: short trips (no prep), medium (warnings), long (preparation)
+- **Encounters**: bandits, animals, travelers (based on region and preparation)
+- **Preparation**: carrying weapons, money, etc. affects encounters
 
-Example: `M_authority` appears as:
-- Micro: local bailiff demands payment
-- Meso: lord summons for judgment
-- Macro: bishop declares heresy in the region
+## Development
+
+### Main branch: `main`
+- Stable code, ready to play
+- Only changes that pass all tests
+
+### Development branch: `develop`
+- Main working branch
+- New features are integrated here
+
+### Feature branches: `feature/name`
+- One branch per feature
+- Created from `develop`, merged back with PR
 
 ## Roadmap
 
+- [ ] Free-form text parser for actions
 - [ ] More narrative modules (commerce, travel, conflicts)
-- [ ] Living world: latent dangers that affect the player without their knowledge
-- [ ] Regions with distinct personalities and mechanics
+- [ ] Living world: latent dangers that affect without player knowledge
+- [ ] Regions with distinct personality and sub-regions
 - [ ] Skills that evolve through use
 - [ ] Procedural backstory generation (simulation from birth)
-- [ ] Free-form text parser for actions
 - [ ] Save/load system
-- [ ] Multiple character runs and legacy system
+- [ ] Expansion to other geographic zones
 
 ## Design Philosophy
 
@@ -176,10 +161,17 @@ Contributions are welcome. Please:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## Status
+
+**Functional prototype**. Core systems working:
+- ✓ Character creation
+- ✓ Daily loop with modules
+- ✓ Travel system with encounters
+- ✓ World with regions
+- ✓ 136 automated tests
+
+Next steps: text parser, more events, persistence.
+
 ## Contact
 
 Questions or suggestions? Open an issue on GitHub.
-
----
-
-**Status**: Early prototype. Core systems working, expanding content and features.
