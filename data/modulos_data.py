@@ -215,6 +215,90 @@ MODULOS = [
     },
 
     # =========================================================================
+    # MÓDULOS FALLBACK (garantizados, sin condiciones restrictivas)
+    # =========================================================================
+
+    {
+        "id": "comer_fallback",
+        "franja": "mañana",
+        "categoria": "comer",
+        "condiciones": {},
+        "texto": "Tienes hambre. Necesitas comer algo.",
+        "opciones": [
+            {
+                "texto_boton": "Comer algo simple",
+                "transformaciones": {"nutricion": +0.2},
+                "texto_resultado": "Comes lo que encuentras. Es suficiente.",
+            },
+            {
+                "texto_boton": "Saltarse el desayuno",
+                "transformaciones": {"descanso": +0.05},
+                "texto_resultado": "Decides no comer. Tienes más tiempo.",
+            },
+        ],
+    },
+
+    {
+        "id": "trabajar_fallback",
+        "franja": "mediodia",
+        "categoria": "trabajar",
+        "condiciones": {},
+        "texto": "Es mediodía. Podrías hacer algo productivo.",
+        "opciones": [
+            {
+                "texto_boton": "Trabajar un poco",
+                "transformaciones": {"riqueza": +0.05, "descanso": -0.08},
+                "texto_resultado": "Trabajas sin prisa. Ganas algo de dinero.",
+            },
+            {
+                "texto_boton": "Descansar",
+                "transformaciones": {"descanso": +0.1},
+                "texto_resultado": "Prefieres descansar. El trabajo puede esperar.",
+            },
+        ],
+    },
+
+    {
+        "id": "descansar_fallback",
+        "franja": "tarde",
+        "categoria": "descansar",
+        "condiciones": {},
+        "texto": "La tarde avanza. Tu cuerpo pide descanso.",
+        "opciones": [
+            {
+                "texto_boton": "Descansar un rato",
+                "transformaciones": {"descanso": +0.15},
+                "texto_resultado": "Te relajas. El cuerpo lo agradece.",
+            },
+            {
+                "texto_boton": "Seguir activo",
+                "transformaciones": {"riqueza": +0.02, "descanso": -0.05},
+                "texto_resultado": "Sigues trabajando. Cansado, pero productivo.",
+            },
+        ],
+    },
+
+    {
+        "id": "reflexion_fallback",
+        "franja": "noche",
+        "categoria": "otro",
+        "condiciones": {},
+        "texto": "La noche es tranquila. Tienes tiempo para pensar.",
+        "opciones": [
+            {
+                "texto_boton": "Reflexionar sobre el día",
+                "transformaciones": {"presion_social": -0.05},
+                "texto_resultado": "Reflexionas. El día ha sido largo.",
+            },
+            {
+                "texto_boton": "Dormir sin pensar",
+                "transformaciones": {"descanso": +0.2},
+                "texto_resultado": "Te duermes rápido. Mañana será otro día.",
+            },
+        ],
+    },
+
+    # =========================================================================
     # LÍNEA DE MISIÓN: IGLESIA (7 módulos con progresión)
     # =========================================================================
 
