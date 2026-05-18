@@ -1338,4 +1338,353 @@ MODULOS = [
         ],
     },
 
+    # =========================================================================
+    # MÓDULOS ESPECÍFICOS POR LINAJE
+    # =========================================================================
+
+    # HERRERO
+    {
+        "id": "herrero_forja",
+        "franja": "mediodia",
+        "categoria": "trabajar",
+        "condiciones": {
+            "tags": ["artesano"],
+        },
+        "texto": "La forja te llama. Tienes trabajo que hacer.",
+        "opciones": [
+            {
+                "texto_boton": "Trabajar en la forja",
+                "transformaciones": {
+                    "riqueza": +0.12,
+                    "descanso": -0.15,
+                    "reputacion": +0.05,
+                },
+                "texto_resultado": "Trabajas duro en la forja. Tu reputación crece.",
+            },
+            {
+                "texto_boton": "Descansar",
+                "transformaciones": {
+                    "descanso": +0.1,
+                },
+                "texto_resultado": "Descansas. El trabajo puede esperar.",
+            },
+        ],
+    },
+
+    {
+        "id": "herrero_encargo_especial",
+        "franja": "tarde",
+        "categoria": "trabajar",
+        "condiciones": {
+            "tags": ["artesano"],
+            "reputacion": (0.3, 1.0),
+        },
+        "texto": "Un noble te encarga una espada especial.",
+        "opciones": [
+            {
+                "texto_boton": "Aceptar el encargo",
+                "transformaciones": {
+                    "flags_add": ["encargo_noble"],
+                    "riqueza": +0.2,
+                    "descanso": -0.2,
+                },
+                "texto_resultado": "Aceptas. Será un trabajo arduo pero bien pagado.",
+            },
+            {
+                "texto_boton": "Declinar",
+                "transformaciones": {
+                    "reputacion": -0.05,
+                },
+                "texto_resultado": "Declinas. El noble se decepciona.",
+            },
+        ],
+    },
+
+    # CLÉRIGO
+    {
+        "id": "clerigo_misa",
+        "franja": "mañana",
+        "categoria": "rezar",
+        "condiciones": {
+            "tags": ["devoto"],
+        },
+        "texto": "Es hora de la misa. Tu deber te llama.",
+        "opciones": [
+            {
+                "texto_boton": "Celebrar misa",
+                "transformaciones": {
+                    "fe": +0.15,
+                    "reputacion": +0.1,
+                    "presion_social": -0.1,
+                },
+                "texto_resultado": "Celebras una misa hermosa. La comunidad te venera.",
+            },
+            {
+                "texto_boton": "Saltarse la misa",
+                "transformaciones": {
+                    "fe": -0.1,
+                    "reputacion": -0.15,
+                },
+                "texto_resultado": "Faltas a tu deber. La comunidad lo nota.",
+            },
+        ],
+    },
+
+    {
+        "id": "clerigo_confesion",
+        "franja": "tarde",
+        "categoria": "rezar",
+        "condiciones": {
+            "tags": ["devoto"],
+        },
+        "texto": "Alguien viene a confesarse contigo.",
+        "opciones": [
+            {
+                "texto_boton": "Escuchar con compasión",
+                "transformaciones": {
+                    "fe": +0.08,
+                    "salud_mental": +0.1,
+                    "reputacion": +0.05,
+                },
+                "texto_resultado": "Escuchas con compasión. Ambos os sentís mejor.",
+            },
+            {
+                "texto_boton": "Ser severo",
+                "transformaciones": {
+                    "fe": +0.05,
+                    "reputacion": -0.1,
+                },
+                "texto_resultado": "Eres severo. El penitente se va asustado.",
+            },
+        ],
+    },
+
+    # SOLDADO
+    {
+        "id": "soldado_entrenamiento",
+        "franja": "mediodia",
+        "categoria": "trabajar",
+        "condiciones": {
+            "tags": ["ex_militar"],
+        },
+        "texto": "Tu instinto militar te pide entrenar.",
+        "opciones": [
+            {
+                "texto_boton": "Entrenar combate",
+                "transformaciones": {
+                    "descanso": -0.15,
+                    "salud_fisica": +0.1,
+                    "reputacion": +0.05,
+                },
+                "texto_resultado": "Entrenas duro. Tu cuerpo se fortalece.",
+            },
+            {
+                "texto_boton": "Descansar",
+                "transformaciones": {
+                    "descanso": +0.15,
+                },
+                "texto_resultado": "Descansas. Tu cuerpo lo necesita.",
+            },
+        ],
+    },
+
+    {
+        "id": "soldado_conflicto",
+        "franja": "tarde",
+        "categoria": "otro",
+        "condiciones": {
+            "tags": ["ex_militar"],
+            "region": ["frontera", "ciudad_amurallada"],
+        },
+        "texto": "Ves un conflicto en la calle. Tu instinto de soldado despierta.",
+        "opciones": [
+            {
+                "texto_boton": "Intervenir",
+                "transformaciones": {
+                    "heridas": +0.1,
+                    "reputacion": +0.1,
+                    "peligro_percibido": +0.05,
+                },
+                "texto_resultado": "Intervienes. Ganas respeto, pero también enemigos.",
+            },
+            {
+                "texto_boton": "Ignorar",
+                "transformaciones": {
+                    "presion_social": +0.05,
+                },
+                "texto_resultado": "Ignoras. No es tu problema.",
+            },
+        ],
+    },
+
+    # MERCADER
+    {
+        "id": "mercader_negocio",
+        "franja": "mediodia",
+        "categoria": "trabajar",
+        "condiciones": {
+            "tags": ["negociante"],
+        },
+        "texto": "Hay oportunidades de negocio en el mercado.",
+        "opciones": [
+            {
+                "texto_boton": "Hacer un buen negocio",
+                "transformaciones": {
+                    "riqueza": +0.15,
+                    "reputacion": +0.05,
+                },
+                "texto_resultado": "Haces un negocio excelente. Tu bolsa se llena.",
+            },
+            {
+                "texto_boton": "Ser cauteloso",
+                "transformaciones": {
+                    "riqueza": +0.05,
+                },
+                "texto_resultado": "Eres cauteloso. Ganas poco, pero seguro.",
+            },
+        ],
+    },
+
+    {
+        "id": "mercader_viaje_comercial",
+        "franja": "mediodia",
+        "categoria": "viajar",
+        "condiciones": {
+            "tags": ["viajero"],
+            "riqueza": (0.3, 1.0),
+        },
+        "texto": "Tienes la oportunidad de un viaje comercial lucrativo.",
+        "opciones": [
+            {
+                "texto_boton": "Partir en viaje comercial",
+                "transformaciones": {
+                    "_viaje": "puerto_costero",
+                    "riqueza": +0.1,
+                },
+                "texto_resultado": "Partes hacia nuevos mercados.",
+            },
+            {
+                "texto_boton": "Quedarse",
+                "transformaciones": {},
+                "texto_resultado": "Decides quedarte. Hay negocio local.",
+            },
+        ],
+    },
+
+    # CAMPESINO
+    {
+        "id": "campesino_cosecha",
+        "franja": "mediodia",
+        "categoria": "trabajar",
+        "condiciones": {
+            "tags": ["rural"],
+        },
+        "texto": "Es tiempo de cosecha. La tierra te necesita.",
+        "opciones": [
+            {
+                "texto_boton": "Trabajar en la cosecha",
+                "transformaciones": {
+                    "nutricion": +0.1,
+                    "riqueza": +0.08,
+                    "descanso": -0.2,
+                },
+                "texto_resultado": "Trabajas en la cosecha. Tu familia tendrá comida.",
+            },
+            {
+                "texto_boton": "Descansar",
+                "transformaciones": {
+                    "descanso": +0.15,
+                },
+                "texto_resultado": "Descansas. La cosecha puede esperar.",
+            },
+        ],
+    },
+
+    {
+        "id": "campesino_tierra",
+        "franja": "tarde",
+        "categoria": "trabajar",
+        "condiciones": {
+            "tags": ["rural"],
+        },
+        "texto": "Tu tierra necesita cuidados.",
+        "opciones": [
+            {
+                "texto_boton": "Cuidar la tierra",
+                "transformaciones": {
+                    "nutricion": +0.08,
+                    "descanso": -0.1,
+                    "reputacion": +0.03,
+                },
+                "texto_resultado": "Cuidas tu tierra. Será una buena cosecha.",
+            },
+            {
+                "texto_boton": "Descansar",
+                "transformaciones": {
+                    "descanso": +0.1,
+                },
+                "texto_resultado": "Descansas. Mañana habrá más trabajo.",
+            },
+        ],
+    },
+
+    # NOBLE CAÍDO
+    {
+        "id": "noble_caido_honor",
+        "franja": "tarde",
+        "categoria": "otro",
+        "condiciones": {
+            "tags": ["noble"],
+        },
+        "texto": "Recuerdas tu antiguo honor. ¿Cómo has caído tan bajo?",
+        "opciones": [
+            {
+                "texto_boton": "Luchar por recuperar honor",
+                "transformaciones": {
+                    "reputacion": +0.1,
+                    "descanso": -0.15,
+                    "salud_mental": +0.05,
+                },
+                "texto_resultado": "Te propones recuperar tu honor. Es un camino duro.",
+            },
+            {
+                "texto_boton": "Aceptar tu destino",
+                "transformaciones": {
+                    "presion_social": -0.1,
+                    "salud_mental": -0.05,
+                },
+                "texto_resultado": "Aceptas tu caída. Al menos hay paz en la resignación.",
+            },
+        ],
+    },
+
+    {
+        "id": "noble_caido_deuda",
+        "franja": "mediodia",
+        "categoria": "otro",
+        "condiciones": {
+            "tags": ["caido"],
+            "riqueza": (0.0, 0.4),
+        },
+        "texto": "Un acreedor te busca. Tienes deudas que pagar.",
+        "opciones": [
+            {
+                "texto_boton": "Enfrentarlo",
+                "transformaciones": {
+                    "reputacion": +0.05,
+                    "peligro_percibido": +0.1,
+                },
+                "texto_resultado": "Lo enfrentas. Ganas respeto, pero también enemigos.",
+            },
+            {
+                "texto_boton": "Huir",
+                "transformaciones": {
+                    "peligro_percibido": +0.15,
+                    "reputacion": -0.1,
+                },
+                "texto_resultado": "Huyes. Pero sabes que volverá.",
+            },
+        ],
+    },
+
 ]

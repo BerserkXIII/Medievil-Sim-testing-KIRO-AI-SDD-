@@ -7,13 +7,21 @@ Un módulo es un evento con condiciones, opciones y transformaciones.
 def _cumple_condiciones(personaje: dict, condiciones: dict) -> bool:
     """
     Evalúa si el personaje cumple las condiciones de activación de un módulo.
-    Soporta: rangos de float, listas de valores válidos, flags, bools.
+    Soporta: rangos de float, listas de valores válidos, flags, bools, tags.
     """
     c = personaje["condiciones"]
     s = personaje["social"]
     flags = personaje["flags"]
+    tags = personaje.get("tags", [])
 
     for clave, valor in condiciones.items():
+
+        # tags del linaje
+        if clave == "tags":
+            for tag in valor:
+                if tag not in tags:
+                    return False
+            continue
 
         # flags
         if clave == "flags_activos":

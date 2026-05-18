@@ -360,12 +360,30 @@ class Interfaz:
             self._preparar_viaje(destino)
             return
 
-        # Aplicar transformación normal
+        # Guardar estado anterior para mostrar cambios
+        estado_anterior = {
+            "nutricion": self.personaje["condiciones"]["nutricion"],
+            "descanso": self.personaje["condiciones"]["descanso"],
+            "salud_fisica": self.personaje["estado"]["salud_fisica"],
+            "salud_mental": self.personaje["estado"]["salud_mental"],
+            "riqueza": self.personaje["social"]["riqueza"],
+            "reputacion": self.personaje["social"]["reputacion"],
+        }
+
+        # Aplicar transformación
         self.personaje, resultado = aplicar_opcion(self.personaje, modulo, indice)
+        
+        # Mostrar resultado
         self._narrar(resultado)
+        
+        # Mostrar cambios de stats
+        self._mostrar_cambios_stats(estado_anterior)
+        
+        # Actualizar barras
         self._actualizar_barras()
-        self.franja_actual += 1
-        self.root.after(500, self._mostrar_franja)
+        
+        # Mostrar botón para siguiente franja
+        self._mostrar_boton_siguiente_franja()
 
     def _generar_modulos_viaje(self) -> list:
         """Genera módulos de viaje para los destinos disponibles."""
@@ -500,8 +518,7 @@ class Interfaz:
         self.viaje_destino = None
         self.viaje_preparacion = None
         self._narrar("Decides quedarte por ahora.")
-        self.franja_actual += 1
-        self.root.after(500, self._mostrar_franja)
+        self._mostrar_boton_siguiente_franja()
 
     def _iniciar_viaje(self, destino: str, preparacion: str = None):
         """Inicia el viaje con la preparación elegida."""
@@ -536,8 +553,7 @@ class Interfaz:
             self._actualizar_header()
             self._actualizar_barras()
             self.en_preparacion_viaje = False
-            self.franja_actual += 1
-            self.root.after(500, self._mostrar_franja)
+            self._mostrar_boton_siguiente_franja()
 
     def _mostrar_encuentro_viaje(self, encuentro: dict):
         """Muestra un encuentro durante el viaje."""
@@ -584,8 +600,61 @@ class Interfaz:
         self._actualizar_barras()
 
         self.en_preparacion_viaje = False
+        self._mostrar_boton_siguiente_franja()
+
+    def _mostrar_cambios_stats(self, estado_anterior: dict):
+        """Muestra los cambios de stats después de una acción."""
+        cambios = []
+        
+        stats_actuales = {
+            "nutricion": self.personaje["condiciones"]["nutricion"],
+            "descanso": self.personaje["condiciones"]["descanso"],
+            "salud_fisica": self.personaje["estado"]["salud_fisica"],
+            "salud_mental": self.personaje["estado"]["salud_mental"],
+            "riqueza": self.personaje["social"]["riqueza"],
+            "reputacion": self.personaje["social"]["reputacion"],
+        }
+        
+        etiquetas = {
+            "nutricion": "Nutrición",
+            "descanso": "Descanso",
+            "salud_fisica": "Salud física",
+            "salud_mental": "Salud mental",
+            "riqueza": "Riqueza",
+            "reputacion": "Reputación",
+        }
+        
+        for stat, valor_anterior in estado_anterior.items():
+            valor_actual = stats_actuales[stat]
+            delta = valor_actual - valor_anterior
+            
+            if abs(delta) > 0.01:  # Solo mostrar cambios significativos
+                signo = "+" if delta > 0 else ""
+                cambios.append(f"  {etiquetas[stat]}: {signo}{delta:.2f}")
+        
+        if cambios:
+            self._narrar("\n📊 Cambios:")
+            for cambio in cambios:
+                self._narrar(cambio)
+
+    def _mostrar_boton_siguiente_franja(self):
+        """Muestra botón para avanzar a la siguiente franja."""
+        self._limpiar_botones()
+        
+        btn_siguiente = tk.Button(
+            self.frame_botones,
+            text="Siguiente franja →",
+            bg=COLOR_BOTON, fg=COLOR_BOTON_TX,
+            font=("Georgia", 11), relief="flat",
+            padx=10, pady=8, cursor="hand2",
+            command=self._avanzar_franja,
+        )
+        btn_siguiente.pack(fill="x", pady=4)
+
+    def _avanzar_franja(self):
+        """Avanza a la siguiente franja."""
         self.franja_actual += 1
-        self.root.after(500, self._mostrar_franja)
+        self._mostrar_franja()
 
     def _fin_dia(self):
         """Cierra el día y avanza al siguiente."""
